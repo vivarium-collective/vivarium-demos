@@ -1,10 +1,10 @@
+"""
+Basico/COPASI process for use with process bigraph.
+"""
+import os
 import COPASI
-from basico import (
-    load_model,
-    get_species,
-    get_reactions,
-    run_time_course,
-)
+from basico import (load_model, get_species, get_reactions, run_time_course)
+
 from process_bigraph import Process, Composite, ProcessTypes
 from process_bigraph.emitter import gather_emitter_results
 
@@ -41,12 +41,21 @@ def _get_transient_concentration(name, dm):
 class CopasiProcess(Process):
     """ODE component of the dfba hybrid using COPASI(basico). TODO: Generalize this to use any ode sim."""
     config_schema = {
-        'model': 'string'
+        'model_path': 'string'
     }
 
     def __init__(self, config=None, core=None):
         super().__init__(config, core)
-        self.model = load_model(self.config['model']['model_source'])
+        print("Current working directory:", os.getcwd())
+        print("Expected full path:", os.path.abspath(self.config['model_path']))
+        print("File exists?", os.path.exists(self.config['model_path']))
+
+        # # get the model path from the config
+        # here = os.path.dirname(os.path.abspath(__file__))
+        # model_path = str(os.path.join(here, '..', *self.config['model_path'].split('/')))
+
+        # load the model
+        self.model = load_model(self.config['model_path'])
         self.reaction_names = get_reactions(model=self.model).index.tolist()
         self.species_names = get_species(model=self.model).index.tolist()
 
